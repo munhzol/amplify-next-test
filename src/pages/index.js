@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { Inter } from "@next/font/google";
 // import styles from "@/styles/Home.module.css";
 
@@ -29,15 +29,41 @@ export default function Home() {
       })
     );
 
-    const results = await API.graphql(graphqlOperation(listTodos));
-    console.log(results);
-
-    todoList.push(newThingTodo);
+    todoList.push(result.data.createTodo);
     setTodoList(todoList);
     setNewThingTodo("");
-
   };
-  
+
+  const getList = async () => {
+    try {
+      const results = await API.graphql(graphqlOperation(listTodos));
+      setTodoList(results.data.listTodos.items);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getList();
+  }, []);
+
+  const onDelete = async (id) => {
+    try {
+      const result = await API.graphql(
+        graphqlOperation(deleteTodo, {
+          input: {
+            id,
+          },
+        })
+      );
+
+      const filterTodo = todoList.filter((todo) => todo.id !== id);
+      setTodoList(filterTodo);
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(`deleteing... ${id}`);
+  };
 
   return (
     <>
@@ -68,8 +94,10 @@ export default function Home() {
           </form>
 
           <ul>
-            {todoList.map((list, index) => (
-              <li key={index}>{list}</li>
+            {todoList.map(({ id, name }) => (
+              <li key={id}>
+                {name} - <button onClick={() => onDelete(id)}>Delete</button>
+              </li>
             ))}
           </ul>
         </div>
