@@ -11,6 +11,7 @@ import awsconfig from "../aws-exports";
 
 import { createTodo, updateTodo, deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
+import Link from "next/link";
 
 Amplify.configure(awsconfig);
 
@@ -96,7 +97,8 @@ export default function Home() {
           <ul>
             {todoList.map(({ id, name }) => (
               <li key={id}>
-                {name} - <button onClick={() => onDelete(id)}>Delete</button>
+                <Link href={`/todo/${id}`}>{name}</Link>-{" "}
+                <button onClick={() => onDelete(id)}>Delete</button>
               </li>
             ))}
           </ul>
